@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class MailService {
 
     private final JavaMailSender mailSender;
+    private final MailContentBuilder mailContentBuilder;
 
     void sendMail(NotificationEmail notificationEmail){
         MimeMessagePreparator mimeMessagePreparator = mimeMessage -> {
@@ -24,7 +25,7 @@ public class MailService {
             mimeMessageHelper.setFrom("springConnect@gmail.com");
             mimeMessageHelper.setTo(notificationEmail.getReciepient());
             mimeMessageHelper.setSubject(notificationEmail.getSubject());
-            mimeMessageHelper.setText(notificationEmail.getBody());
+            mimeMessageHelper.setText(mailContentBuilder.build(notificationEmail.getBody()));
         };
 
         try {
