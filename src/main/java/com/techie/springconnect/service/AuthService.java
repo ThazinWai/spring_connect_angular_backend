@@ -1,6 +1,8 @@
 package com.techie.springconnect.service;
 
 
+import com.techie.springconnect.dto.AuthenticationResponse;
+import com.techie.springconnect.dto.LoginRequest;
 import com.techie.springconnect.dto.RegisterRequest;
 import com.techie.springconnect.exceptions.SpringConnectException;
 import com.techie.springconnect.model.NotificationEmail;
@@ -8,9 +10,17 @@ import com.techie.springconnect.model.User;
 import com.techie.springconnect.model.VerificationToken;
 import com.techie.springconnect.repository.UserRepository;
 import com.techie.springconnect.repository.VerificationTokenRepository;
+import com.techie.springconnect.security.JwtProvider;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.hibernate.service.internal.ServiceProxyGenerationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,10 +34,13 @@ import java.util.UUID;
 @Transactional
 public class AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
 
     public void signUp(RegisterRequest registerRequest){
         //save user
@@ -48,6 +61,10 @@ public class AuthService {
                         "http://localhost:8080/api/auth/accountVerification/"+token));
 
     }
+
+//    public AuthenticationResponse login(LoginRequest loginRequest){
+//
+//    }
 
     //generate and save verification Token
     private String generateVerificationToken(User user) {
@@ -77,4 +94,14 @@ public class AuthService {
         userRepository.save(user);
     }
 
+    public AuthenticationResponse login(LoginRequest loginRequest) {
+        Authentication authenticate = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),loginRequest.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        String token = jwtProvider.generateToken(authenticate);
+
+        return new AuthenticationResponse(token,loginRequest.getUsername());
+    }
 }

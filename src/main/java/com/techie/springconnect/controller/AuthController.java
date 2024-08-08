@@ -1,6 +1,8 @@
 package com.techie.springconnect.controller;
 
 
+import com.techie.springconnect.dto.AuthenticationResponse;
+import com.techie.springconnect.dto.LoginRequest;
 import com.techie.springconnect.dto.RegisterRequest;
 import com.techie.springconnect.model.User;
 import com.techie.springconnect.repository.UserRepository;
@@ -33,5 +35,10 @@ public class AuthController {
     public ResponseEntity<String> accountVerification(@PathVariable String token){
         authService.verifyAccount(token);
         return new ResponseEntity<>("Account activated successfully", OK);
+    }
+
+    @PostMapping("/login")
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest){
+        return authService.login(loginRequest);
     }
 }
