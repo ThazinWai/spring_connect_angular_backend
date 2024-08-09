@@ -3,12 +3,14 @@ package com.techie.springconnect.controller;
 
 import com.techie.springconnect.dto.AuthenticationResponse;
 import com.techie.springconnect.dto.LoginRequest;
+import com.techie.springconnect.dto.RefreshTokenRequest;
 import com.techie.springconnect.dto.RegisterRequest;
 import com.techie.springconnect.model.User;
 import com.techie.springconnect.repository.UserRepository;
 import com.techie.springconnect.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,5 +42,10 @@ public class AuthController {
     @PostMapping("/login")
     public AuthenticationResponse login(@RequestBody LoginRequest loginRequest){
         return authService.login(loginRequest);
+    }
+
+    @PostMapping("/refresh/token")
+    public AuthenticationResponse refreshTokens(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return authService.refreshToken(refreshTokenRequest);
     }
 }

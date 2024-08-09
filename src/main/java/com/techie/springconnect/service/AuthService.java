@@ -3,6 +3,7 @@ package com.techie.springconnect.service;
 
 import com.techie.springconnect.dto.AuthenticationResponse;
 import com.techie.springconnect.dto.LoginRequest;
+import com.techie.springconnect.dto.RefreshTokenRequest;
 import com.techie.springconnect.dto.RegisterRequest;
 import com.techie.springconnect.exceptions.SpringConnectException;
 import com.techie.springconnect.model.NotificationEmail;
@@ -41,6 +42,7 @@ public class AuthService {
     private final MailService mailService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
     public void signUp(RegisterRequest registerRequest){
         //save user
@@ -61,10 +63,6 @@ public class AuthService {
                         "http://localhost:8080/api/auth/accountVerification/"+token));
 
     }
-
-//    public AuthenticationResponse login(LoginRequest loginRequest){
-//
-//    }
 
     //generate and save verification Token
     private String generateVerificationToken(User user) {
@@ -102,6 +100,22 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         String token = jwtProvider.generateToken(authenticate);
 
-        return new AuthenticationResponse(token,loginRequest.getUsername());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+                .username(loginRequest.getUsername())
+                .build();
+    }
+
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+        String token = jwtProvider.generateTokenWithUserName(refreshTokenRequest.getUsername());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .refreshToken(refreshTokenRequest.getRefreshToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+                .username(refreshTokenRequest.getUsername())
+                .build();
     }
 }
