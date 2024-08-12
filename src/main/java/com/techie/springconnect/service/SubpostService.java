@@ -17,6 +17,7 @@ import java.time.Instant;
 public class SubpostService {
 
     private SubPostRepository subPostRepository;
+    private final AuthService authService;
 
     @Transactional
     public void save(SubpostDto subpostDto) {
@@ -25,6 +26,7 @@ public class SubpostService {
         subpost.setName(subpostDto.getName());
         subpost.setDescription(subpostDto.getDescription());
         subpost.setCreatedDate(Instant.now());
+        subpost.setUser(authService.getCurrentUser());
         subPostRepository.save(subpost);
     }
 }
