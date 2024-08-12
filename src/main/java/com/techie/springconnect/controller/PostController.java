@@ -1,6 +1,7 @@
 package com.techie.springconnect.controller;
 
 import com.techie.springconnect.dto.PostRequest;
+import com.techie.springconnect.dto.PostResponse;
 import com.techie.springconnect.model.Post;
 import com.techie.springconnect.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class PostController {
     }
 
     @GetMapping("/getAllPosts")
-    public ResponseEntity<List<Post>> getAllPosts(){
-        return status(HttpStatus.OK).body(postService.getAllPosts());
+    public ResponseEntity<List<PostResponse>> getAllPosts(){
+        return status(HttpStatus.OK).body(postService.getAllPostResponses());
     }
 }
