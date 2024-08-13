@@ -63,6 +63,7 @@ public class SecurityFileConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for APIs
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/posts/**").permitAll()
                         .requestMatchers(
                                 "/v2/api-docs",
                                 "/swagger-resources",
